@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Visualization</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+
+<body>
+    <form id="userForm">
+        <label for="userId">Enter Name of the student:</label>
+        <input type="text" id="userId" name="userId">
+        <button type="button" onclick="getUserData()">Get Data</button>
+    </form>
+
+    <div id="plot-container"></div>
+
+    <script>
+        function getUserData() {
+            var userId = $("#userId").val();
+            console.log(userId);
+
+            // Fetch data using AJAX
+            $.ajax({
+                url: "fetchUserData.php",
+                method: "POST",
+                data: { userId: userId },
+                success: function (userData) {
+                    console.log("UserData:", userData);
+
+                    if (userData !== null) {
+                        // Set up the SVG container
+                        const svg = d3.select("#plot-container")
+                            .html("") // Clear previous content
+                            .append("svg")
+                            .attr("width", 400)
+                            .attr("height", 200)
+                            .append("g")
+                            .attr("transform", "translate(200,100)");
+
+                        // Extract data from the object
+                        const dataValues = Object.values(userData);
+
+                        // Create a pie chart
+                        const pie = d3.pie();
+                        const arc = d3.arc().innerRadius(0).outerRadius(100);
+
+                        // Generate pie chart data
+                        const pieData = pie(dataValues);
+
+                        // Create arcs
+                        svg.selectAll("path")
+                            .data(pieData)
+                            .enter()
+                            .append("path")
+                            .attr("d", arc)
+                            .attr("fill", (d, i) => d3.schemeCategory10[i]);
+
+                        // Add text labels
+                        svg.selectAll("text")
+                            .data(pieData)
+                            .enter()
+                            .append("text")
+                            .text(d => d.data)
+                            .attr("transform", d => `translate(${arc.centroid(d)})`)
+                            .style("text-anchor", "middle");
+                    } else {
+                        alert("User not found");
+                    }
+                },
+                error: function (error) {
+                    console.log("Error:", error);
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

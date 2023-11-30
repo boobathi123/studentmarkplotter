@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    input {
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 10px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    #total {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+  <title>Student Mark Statement</title>
+</head>
+
+<body>
+
+  <h2>Student Mark Statement</h2>
+  <form id="markForm">
+    <label for="name">Name:</label>
+    <input id="name" name="name" required>
+    <label for="dept">Class:</label>
+    <input id="class" name="dept" required>
+    <label for="subject1">Subject 1:</label>
+    <input type="number" id="subject1" name="subject1" required>
+    <label for="subject2">Subject 2:</label>
+    <input type="number" id="subject2" name="subject2" required>
+    <label for="subject3">Subject 3:</label>
+    <input type="number" id="subject3" name="subject3" required>
+    <label for="subject4">Subject 4:</label>
+    <input type="number" id="subject4" name="subject4" required>
+    <!-- Add a hidden input field to store the total -->
+    <input type="hidden" id="totalInput" name="total">
+    <button type="button" onclick="calculateTotal()">Calculate Total</button><br>
+    <button type="button"><a href="visualize.html">Visualize</a></button>
+  </form>
+
+  <div id="total"></div>
+
+  <script>
+    function calculateTotal() {
+      // Get input values
+      var name = document.getElementById("name").value;
+      var dept = document.getElementById("class").value;
+      var subject1 = parseFloat(document.getElementById("subject1").value) || 0;
+      var subject2 = parseFloat(document.getElementById("subject2").value) || 0;
+      var subject3 = parseFloat(document.getElementById("subject3").value) || 0;
+      var subject4 = parseFloat(document.getElementById("subject4").value) || 0;
+
+      // Calculate total
+      var total = subject1 + subject2 + subject3 + subject4;
+
+      // Display total
+      document.getElementById("total").innerText = "Total Marks: " + total;
+
+      // Set the value of the hidden input field
+      document.getElementById("totalInput").value = total;
+
+      // Make an AJAX request to save_marks.php
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "save_marks.php", true);
+      xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+      // Prepare form data
+      var formData = "name=" + encodeURIComponent(name) +
+        "&dept=" + encodeURIComponent(dept) +
+        "&subject1=" + subject1 +
+        "&subject2=" + subject2 +
+        "&subject3=" + subject3 +
+        "&subject4=" + subject4 +
+        "&total=" + total;
+
+      // Send the request
+      xhr.send(formData);
+
+      xhr.onreadystatechange = function () {
+        if (this.readyState == 4) {
+          if (this.status == 200) {
+            // Response from the server (if needed)
+            console.log(this.responseText);
+          } else {
+            console.error("Error:", this.status, this.statusText);
+          }
+        }
+      };
+    }
+  </script>
+
+</body>
+
+</html>
